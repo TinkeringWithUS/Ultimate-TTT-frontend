@@ -1,5 +1,5 @@
 import { PLAYER_ONE_STORAGE_KEY, PLAYER_TWO_STORAGE_KEY, NUM_TILES_PER_BOARD, INITIALIZE, NEW_MOVE }
-    from "../../../utils/constants.mjs";
+  from "../../../utils/constants.mjs";
 
 import { reactive } from "vue";
 import { io } from "../node_modules/socket.io/client-dist/socket.io.js";
@@ -7,13 +7,13 @@ import { io } from "../node_modules/socket.io/client-dist/socket.io.js";
 const URL = "http://localhost:3000";
 
 export const state = reactive({
-    isConnected: false,
-    errorMessage: null,
-    nextMove: {
-        player: PLAYER_ONE_STORAGE_KEY,
-        tileId: -1,
-        gameStatus: null
-    },
+  isConnected: false,
+  errorMessage: null,
+  nextMove: {
+    player: PLAYER_ONE_STORAGE_KEY,
+    tileId: -1,
+    gameStatus: null
+  },
 });
 
 /**
@@ -34,103 +34,103 @@ export const state = reactive({
  */
 
 const socketOptions = {
-    autoConnect: false,
+  autoConnect: false,
 };
 
 export const socket = io(URL, socketOptions);
 
 export function connectSocket() {
-    socket.connect();
-    console.log("Calling connect Socket. connexion status: " + state.isConnected);
-    return state.isConnected;
+  socket.connect();
+  console.log("Calling connect Socket. connexion status: " + state.isConnected);
+  return state.isConnected;
 }
 
 export function disconnectSocket() {
-    socket.disconnect();
-    console.log("Disconnecting socket");
-    state.isConnected = false;
-    return state.isConnected;
+  socket.disconnect();
+  console.log("Disconnecting socket");
+  state.isConnected = false;
+  return state.isConnected;
 }
 
 export function sendMove(playerKey, tileId, boardId) {
-    if (state.isConnected || (!state.isConnected && connectSocket())) {
-        socket.emit(playerKey, { tileId: tileId, boardId: boardId });
-        return true;
-    }
-    return false;
+  if (state.isConnected || (!state.isConnected && connectSocket())) {
+    socket.emit(playerKey, { tileId: tileId, boardId: boardId });
+    return true;
+  }
+  return false;
 }
 
 export function initializeClient(metaBoardContext) {
-    socket.on(INITIALIZE, initialData => {
-        const { playerKey, playerSymbol, opponentSymbol } = initialData;
-        console.log("initial data: " + initialData + " stringified: " + JSON.stringify(initialData));
-        metaBoardContext.playerStorageKey = playerKey;
-        metaBoardContext.playerSymbol = playerSymbol;
-        if (metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY) {
-            metaBoardContext.opponentKey = PLAYER_TWO_STORAGE_KEY;
-        } else {
-            metaBoardContext.opponentKey = PLAYER_ONE_STORAGE_KEY;
-        }
-        metaBoardContext.opponentSymbol = String(opponentSymbol);
-        metaBoardContext.isPlayerTurn = metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY;
-        metaBoardContext.setAllBoardEnableStatus(metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY);
-        console.log("this player's storage key: " + metaBoardContext.playerStorageKey + " opponent symbol: " + opponentSymbol);
-    });
+  socket.on(INITIALIZE, initialData => {
+    const { playerKey, playerSymbol, opponentSymbol } = initialData;
+    console.log("initial data: " + initialData + " stringified: " + JSON.stringify(initialData));
+    metaBoardContext.playerStorageKey = playerKey;
+    metaBoardContext.playerSymbol = playerSymbol;
+    if (metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY) {
+      metaBoardContext.opponentKey = PLAYER_TWO_STORAGE_KEY;
+    } else {
+      metaBoardContext.opponentKey = PLAYER_ONE_STORAGE_KEY;
+    }
+    metaBoardContext.opponentSymbol = String(opponentSymbol);
+    metaBoardContext.isPlayerTurn = metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY;
+    metaBoardContext.setAllBoardEnableStatus(metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY);
+    console.log("this player's storage key: " + metaBoardContext.playerStorageKey + " opponent symbol: " + opponentSymbol);
+  });
 }
 
 export function processNewMove(metaBoardContext) {
-    socket.on(NEW_MOVE, moveInfo => {
-        console.log("client New move received. moveInfo id: " + moveInfo.moveId);
+  socket.on(NEW_MOVE, moveInfo => {
+    console.log("client New move received. moveInfo id: " + moveInfo.moveId);
 
-        const { moveId, boardId, gameStatus } = moveInfo;
-        metaBoardContext.nextBoardToPlay = moveId;
-        // this.placeTile(moveId);
-        // there should be a more elegant way of doing this, save for later
-        // if nextboardtoplay 
-        metaBoardContext.metaGameState[moveId].isEnabled = true;
-        metaBoardContext.opponentMove = { tileId: moveId, boardId: boardId }; // board will play this move (it's a prop)
-        metaBoardContext.isPlayerTurn = true;
+    const { moveId, boardId, gameStatus } = moveInfo;
+    metaBoardContext.nextBoardToPlay = moveId;
+    // this.placeTile(moveId);
+    // there should be a more elegant way of doing this, save for later
+    // if nextboardtoplay 
+    metaBoardContext.metaGameState[moveId].isEnabled = true;
+    metaBoardContext.opponentMove = { tileId: moveId, boardId: boardId }; // board will play this move (it's a prop)
+    metaBoardContext.isPlayerTurn = true;
 
-        metaBoardContext.placeTile({ tileId: moveId, boardId: boardId }, false);
+    metaBoardContext.placeTile({ tileId: moveId, boardId: boardId }, false);
 
-        // game over
-        if (gameStatus !== null) {
-            metaBoardContext.setEndGameStatus(gameStatus);
-            metaBoardContext.setAllBoardEnableStatus(false);
-        }
-    });
+    // game over
+    if (gameStatus !== null) {
+      metaBoardContext.setEndGameStatus(gameStatus);
+      metaBoardContext.setAllBoardEnableStatus(false);
+    }
+  });
 }
 
 socket.on("connect_error", error => {
-    state.isConnected = false;
-    console.log("failed to connect");
-    state.errorMessage = `error name: ${error.name}. error message: ${error.message}`;
+  state.isConnected = false;
+  console.log("failed to connect");
+  state.errorMessage = `error name: ${error.name}. error message: ${error.message}`;
 });
 
 socket.on("connect", () => {
-    state.isConnected = true;
-    console.log("client is connected. connexion status: " + state.isConnected);
+  state.isConnected = true;
+  console.log("client is connected. connexion status: " + state.isConnected);
 });
 
 socket.on("disconnect", () => {
-    state.isConnected = false;
-    console.log("client has disconnected");
+  state.isConnected = false;
+  console.log("client has disconnected");
 });
 
 export function setNextMoveInfo(boardInfo) {
-    if (boardInfo.player !== PLAYER_ONE_STORAGE_KEY || boardInfo.player !== PLAYER_TWO_STORAGE_KEY) {
-        state.errorMessage = "NEXT PLAYER KEY DOESN'T EXIST";
-        return;
-    }
+  if (boardInfo.player !== PLAYER_ONE_STORAGE_KEY || boardInfo.player !== PLAYER_TWO_STORAGE_KEY) {
+    state.errorMessage = "NEXT PLAYER KEY DOESN'T EXIST";
+    return;
+  }
 
-    state.nextMove.player = boardInfo.player;
-    state.nextMove.gameStatus = boardInfo.gameStatus;
+  state.nextMove.player = boardInfo.player;
+  state.nextMove.gameStatus = boardInfo.gameStatus;
 
-    if (0 <= boardInfo.moveId && boardInfo.moveId < NUM_TILES_PER_BOARD) {
-        state.nextMove.tileId = boardInfo.moveId;
-    } else {
-        state.errorMessage = "TILE ID OUT OF BOUNDS";
-    }
+  if (0 <= boardInfo.moveId && boardInfo.moveId < NUM_TILES_PER_BOARD) {
+    state.nextMove.tileId = boardInfo.moveId;
+  } else {
+    state.errorMessage = "TILE ID OUT OF BOUNDS";
+  }
 
-    state.errorMessage = null;
+  state.errorMessage = null;
 }
