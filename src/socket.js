@@ -29,8 +29,8 @@ export const state = reactive({
  * 
  * for client side logic, client will play their move, set all enable status to 
  * false, wait for a new move, once new moves arrives, update next board id with 
- * tile id, allow player to play their move, send back to server (player key, tileId of Move)
- * then the cycle repeats. 
+ * tile id, allow player to play their move, send back to server 
+ * (player key, tileId of Move) then the cycle repeats. 
  */
 
 const socketOptions = {
@@ -62,8 +62,10 @@ export function sendMove(playerKey, tileId, boardId) {
 
 export function initializeClient(metaBoardContext) {
   socket.on(INITIALIZE, initialData => {
-    const { playerKey, playerSymbol, opponentSymbol } = initialData;
-    console.log("initial data: " + initialData + " stringified: " + JSON.stringify(initialData));
+    // roomId
+    const { playerKey, playerSymbol, opponentSymbol, roomId } = initialData;
+    console.log("initial data: " + initialData + " stringified: " + 
+                JSON.stringify(initialData));
     metaBoardContext.playerStorageKey = playerKey;
     metaBoardContext.playerSymbol = playerSymbol;
     if (metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY) {
@@ -72,9 +74,15 @@ export function initializeClient(metaBoardContext) {
       metaBoardContext.opponentKey = PLAYER_ONE_STORAGE_KEY;
     }
     metaBoardContext.opponentSymbol = String(opponentSymbol);
-    metaBoardContext.isPlayerTurn = metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY;
-    metaBoardContext.setAllBoardEnableStatus(metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY);
+    metaBoardContext.isPlayerTurn = 
+                metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY;
+    metaBoardContext.setAllBoardEnableStatus(
+                  metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY);
     console.log("this player's storage key: " + metaBoardContext.playerStorageKey + " opponent symbol: " + opponentSymbol);
+  
+    // roomId, useful for reconnecting back to game 
+    localStorage.setItem("player key", playerKey); 
+    localStorage.setItem("game room", roomId); 
   });
 }
 
@@ -110,11 +118,30 @@ socket.on("connect_error", error => {
 socket.on("connect", () => {
   state.isConnected = true;
   console.log("client is connected. connexion status: " + state.isConnected);
+
+  if(localStorage.getItem("game room") != null) {
+    // need to move this socket back into the active game 
+    // replay all the moves from the server side 
+    // theoretically, the player storage key shouldn't have changed
+    // but very flaky 
+    const previousPlayerSide = localStorage.getItem("player key");
+    const rejoinInfo = {
+      playerKey: previousPlayerSide, gameId: localStorage.getItem("game room")
+    };
+    socket.emit("rejoin", rejoinInfo); 
+    // socket.on("replay", )
+    // to replay the moves, would require the metaboard 
+    // so would need to do this on mounted 
+  }
 });
 
 socket.on("disconnect", () => {
   state.isConnected = false;
   console.log("client has disconnected");
+
+  if(localStorage.getItem("game room") != null) {
+    localStorage.removeItem("game room");
+  }
 });
 
 export function setNextMoveInfo(boardInfo) {

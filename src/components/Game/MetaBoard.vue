@@ -84,14 +84,17 @@ export default {
   },
   methods: {
     // sets enable status, sends move if isNativePlacement, 
+    // 2 cases where tiles are placed 
+    // 1. isNative, this client plays a move
+    // 2. server plays a move
     placeTile({ tileId, boardId }, isNativePlacement) {
       this.nextBoardToPlay = Number(tileId);
 
       let nextBoard = this.metaGameState[this.nextBoardToPlay];
 
       // this is wack, excess computation, but it looks nice lol
-      // if next board to play has ended already, enable all, else, set enable status
-      // of next board
+      // if next board to play has ended already, enable all, else, set enable 
+      // status of next board
       this.setAllBoardEnableStatus(true);
       console.log("meta board. nextboard status: " + nextBoard.status);
       if (!this.endGameStates.includes(nextBoard.status)) {

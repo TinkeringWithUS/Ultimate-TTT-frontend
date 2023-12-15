@@ -1,7 +1,8 @@
 <template>
   <div class="board-container">
     <div class="game-board" :class="{ active: isEnabled }">
-      <game-tile v-for="tile in GameBoard" :key="tile.id" :ownerSymbol="tile.owner" :id="tile.id"
+      <game-tile v-for="tile in GameBoard" :key="tile.id" 
+        :ownerSymbol="tile.owner" :id="tile.id" 
         @place-tile="placeTile(tile.id, true)">
       </game-tile>
     </div>
@@ -69,7 +70,8 @@ export default {
       }
 
       this.tilesPlaced++;
-      selectedTile.owner = nativeTilePlace ? this.clientPlayerSymbol : this.opponentPlayerSymbol;
+      selectedTile.owner = nativeTilePlace ? this.clientPlayerSymbol : 
+                          this.opponentPlayerSymbol;
 
       if (nativeTilePlace) {
         this.$emit("tile-placed", { tileId: tileId, boardId: this.boardId });
