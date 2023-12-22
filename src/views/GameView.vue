@@ -1,10 +1,12 @@
 <template>
   <div class="player-controls">
     <label for="player-one-symbol">Player One Custom Symbol</label>
-    <input type="text" name="player-one-symbol" id="player-one-symbol" v-model="firstPlayer">
+    <input type="text" name="player-one-symbol" id="player-one-symbol" 
+            v-model="firstPlayer">
     <br>
     <label for="player-two-symbol">Player Two Custom Symbol</label>
-    <input type="text" name="player-two-symbol" id="player-two-symbol" v-model="secondPlayer">
+    <input type="text" name="player-two-symbol" id="player-two-symbol" 
+            v-model="secondPlayer">
   </div>
 
   <div class="game">
@@ -19,7 +21,8 @@
 
     <p class="username">{{ playerOneName }}</p>
 
-    <meta-board @game-over="gameOver($event)" @draw="handleDraw" @resetted="finishReset" :player-one="firstPlayer"
+    <meta-board @game-over="gameOver($event)" @draw="handleDraw" 
+      @resetted="finishReset" :player-one="firstPlayer"
       :player-two="secondPlayer" :reset-signal="resetSignal" class="board">
     </meta-board>
 
@@ -39,7 +42,8 @@
 import MetaBoard from '@/components/Game/MetaBoard.vue';
 import ConnectDisplay from '@/components/connectDisplay.vue';
 
-import { PLAYER_ONE_STORAGE_KEY, PLAYER_TWO_STORAGE_KEY } from "../../../../utils/constants.mjs"
+import { PLAYER_ONE_STORAGE_KEY, PLAYER_TWO_STORAGE_KEY } 
+from "../constants.mjs";
 import { connectSocket, disconnectSocket } from '@/socket';
 
 const DEFAULT_FIRST_PLAYER = "X";

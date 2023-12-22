@@ -1,10 +1,10 @@
 import { PLAYER_ONE_STORAGE_KEY, PLAYER_TWO_STORAGE_KEY, NUM_TILES_PER_BOARD, INITIALIZE, NEW_MOVE }
-  from "../../../utils/constants.mjs";
+  from "@/constants.mjs";
 
 import { reactive } from "vue";
 import { io } from "../node_modules/socket.io/client-dist/socket.io.js";
 
-const URL = "http://localhost:3000";
+export const URL = "http://localhost:3000";
 
 export const state = reactive({
   isConnected: false,
@@ -64,8 +64,8 @@ export function initializeClient(metaBoardContext) {
   socket.on(INITIALIZE, initialData => {
     // roomId
     const { playerKey, playerSymbol, opponentSymbol, roomId } = initialData;
-    console.log("initial data: " + initialData + " stringified: " + 
-                JSON.stringify(initialData));
+    console.log("initial data: " + initialData + " stringified: " +
+      JSON.stringify(initialData));
     metaBoardContext.playerStorageKey = playerKey;
     metaBoardContext.playerSymbol = playerSymbol;
     if (metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY) {
@@ -74,15 +74,15 @@ export function initializeClient(metaBoardContext) {
       metaBoardContext.opponentKey = PLAYER_ONE_STORAGE_KEY;
     }
     metaBoardContext.opponentSymbol = String(opponentSymbol);
-    metaBoardContext.isPlayerTurn = 
-                metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY;
+    metaBoardContext.isPlayerTurn =
+      metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY;
     metaBoardContext.setAllBoardEnableStatus(
-                  metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY);
+      metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY);
     console.log("this player's storage key: " + metaBoardContext.playerStorageKey + " opponent symbol: " + opponentSymbol);
-  
+
     // roomId, useful for reconnecting back to game 
-    localStorage.setItem("player key", playerKey); 
-    localStorage.setItem("game room", roomId); 
+    localStorage.setItem("player key", playerKey);
+    localStorage.setItem("game room", roomId);
   });
 }
 
@@ -119,7 +119,7 @@ socket.on("connect", () => {
   state.isConnected = true;
   console.log("client is connected. connexion status: " + state.isConnected);
 
-  if(localStorage.getItem("game room") != null) {
+  if (localStorage.getItem("game room") != null) {
     // need to move this socket back into the active game 
     // replay all the moves from the server side 
     // theoretically, the player storage key shouldn't have changed
@@ -128,7 +128,7 @@ socket.on("connect", () => {
     const rejoinInfo = {
       playerKey: previousPlayerSide, gameId: localStorage.getItem("game room")
     };
-    socket.emit("rejoin", rejoinInfo); 
+    socket.emit("rejoin", rejoinInfo);
     // socket.on("replay", )
     // to replay the moves, would require the metaboard 
     // so would need to do this on mounted 
@@ -139,7 +139,7 @@ socket.on("disconnect", () => {
   state.isConnected = false;
   console.log("client has disconnected");
 
-  if(localStorage.getItem("game room") != null) {
+  if (localStorage.getItem("game room") != null) {
     localStorage.removeItem("game room");
   }
 });

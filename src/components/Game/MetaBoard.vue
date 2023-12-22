@@ -31,7 +31,7 @@ import { sendMove, state, socket, initializeClient, processNewMove } from "../..
 import {
   NUM_BOARDS, CONTINUE, DRAW, PLAYER_ONE_STORAGE_KEY, PLAYER_START_TIME, RESET,
   // WAIT_FOR_OTHER_PLAYER, RESETTED
-} from "../../../../../utils/constants.mjs";
+} from "@/constants.mjs";
 // import { sendMove, receiveMove } from '@/socket';
 
 const startTimeSeconds = PLAYER_START_TIME;

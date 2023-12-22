@@ -15,7 +15,7 @@
 <script>
 import GameTile from './GameTile.vue';
 
-import { NUM_TILES_PER_BOARD } from "../../../../../utils/constants.mjs";
+import { NUM_TILES_PER_BOARD } from "@/constants.mjs";
 
 const DRAW = "D";
 
