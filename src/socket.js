@@ -40,10 +40,10 @@ const socketOptions = {
 };
 
 // local development 
-// export const socket = io(URL, socketOptions);
+export const socket = io(URL, socketOptions);
 
 // production 
-export const socket = io(window.location, socketOptions);
+// export const socket = io(window.location, socketOptions);
 
 export function connectSocket() {
   socket.connect();
