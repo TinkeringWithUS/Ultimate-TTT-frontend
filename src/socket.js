@@ -5,7 +5,8 @@ import { reactive } from "vue";
 import { io } from "../node_modules/socket.io/client-dist/socket.io.js";
 
 // export const URL = "http://localhost:3000";
-export const URL = window.location; 
+// url for server backend 
+export const URL = "https://brick-amenable-cadet.glitch.me"; 
 
 export const state = reactive({
   isConnected: false,
