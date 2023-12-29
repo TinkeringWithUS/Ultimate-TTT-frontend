@@ -4,7 +4,8 @@ import { PLAYER_ONE_STORAGE_KEY, PLAYER_TWO_STORAGE_KEY, NUM_TILES_PER_BOARD, IN
 import { reactive } from "vue";
 import { io } from "../node_modules/socket.io/client-dist/socket.io.js";
 
-export const URL = "http://localhost:3000";
+// export const URL = "http://localhost:3000";
+export const URL = window.location; 
 
 export const state = reactive({
   isConnected: false,
@@ -37,7 +38,11 @@ const socketOptions = {
   autoConnect: false,
 };
 
-export const socket = io(URL, socketOptions);
+// local development 
+// export const socket = io(URL, socketOptions);
+
+// production 
+export const socket = io(window.location, socketOptions);
 
 export function connectSocket() {
   socket.connect();
@@ -78,7 +83,8 @@ export function initializeClient(metaBoardContext) {
       metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY;
     metaBoardContext.setAllBoardEnableStatus(
       metaBoardContext.playerStorageKey === PLAYER_ONE_STORAGE_KEY);
-    console.log("this player's storage key: " + metaBoardContext.playerStorageKey + " opponent symbol: " + opponentSymbol);
+    console.log("this player's storage key: " + 
+      metaBoardContext.playerStorageKey + " opponent symbol: " + opponentSymbol);
 
     // roomId, useful for reconnecting back to game 
     localStorage.setItem("player key", playerKey);
@@ -96,7 +102,8 @@ export function processNewMove(metaBoardContext) {
     // there should be a more elegant way of doing this, save for later
     // if nextboardtoplay 
     metaBoardContext.metaGameState[moveId].isEnabled = true;
-    metaBoardContext.opponentMove = { tileId: moveId, boardId: boardId }; // board will play this move (it's a prop)
+    // board will play this move (it's a prop)
+    metaBoardContext.opponentMove = { tileId: moveId, boardId: boardId }; 
     metaBoardContext.isPlayerTurn = true;
 
     metaBoardContext.placeTile({ tileId: moveId, boardId: boardId }, false);
@@ -112,7 +119,8 @@ export function processNewMove(metaBoardContext) {
 socket.on("connect_error", error => {
   state.isConnected = false;
   console.log("failed to connect");
-  state.errorMessage = `error name: ${error.name}. error message: ${error.message}`;
+  state.errorMessage = 
+      `error name: ${error.name}. error message: ${error.message}`;
 });
 
 socket.on("connect", () => {
@@ -145,7 +153,8 @@ socket.on("disconnect", () => {
 });
 
 export function setNextMoveInfo(boardInfo) {
-  if (boardInfo.player !== PLAYER_ONE_STORAGE_KEY || boardInfo.player !== PLAYER_TWO_STORAGE_KEY) {
+  if (boardInfo.player !== PLAYER_ONE_STORAGE_KEY || 
+      boardInfo.player !== PLAYER_TWO_STORAGE_KEY) {
     state.errorMessage = "NEXT PLAYER KEY DOESN'T EXIST";
     return;
   }
