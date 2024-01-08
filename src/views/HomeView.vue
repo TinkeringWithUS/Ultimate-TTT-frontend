@@ -23,7 +23,7 @@
     </nav>
     <div class="names">
       <div class="name-display">
-        <form method="post" @submit.prevent="login">
+        <form method="post" @submit.prevent="setName">
           <input type="text" v-model="playerOneName" name="player-one-name" 
             placeholder="Name" autocomplete="off"
             class="name-input">
@@ -31,76 +31,55 @@
         </form>
       </div>
 
-      <!-- <div class="name-display">
-        <input type="text" v-model="playerTwoName" name="player-two-name" placeholder="player two name"
-          class="name-input" />
-      </div> -->
-      <RouterLink to="/game">Go to Game</RouterLink>
+      <!-- <RouterLink to="/game">Go to Game</RouterLink> -->
+      <!-- <RouterView></RouterView> -->
     </div>
   </div>
 
-
-  <!-- <div class="name-controls">
-        <form action="" @submit.prevent="setName()">
-            <div class="">
-                <button type="button">Change</button>
-                <p>Current Player Two Username: {{ playerTwoName }}</p>
-                <input type="text" v-model="playerOneName">
-            </div>
-        </form>
-    </div> -->
-
-  <!-- overlay  -->
-
-  <!-- 
-    <form action="" v-if="newName" @submit.prevent="setName()">
-        <p>Player One Username: {{ playerOneName }} <input type="text" v-model="playerOneName" /></p>
-        <button type="submit">
-            Submit
-        </button>
-    </form>
-    
-    <form action="" v-if="newName" @submit.prevent="setName()">
-        <p>Player Two Username: {{ playerTwoName }} <input type="text" v-model="playerTwoName" /></p>
-        <button type="submit">
-            Submit
-        </button>
-    </form> -->
 </template>
 
 <script>
-import { PLAYER_ONE_STORAGE_KEY, 
-  // PLAYER_TWO_STORAGE_KEY 
-} 
+import router from "@/router/router";
+import { PLAYER_ONE_STORAGE_KEY } 
 from "../constants.mjs";
+import { URL } from "@/socket";
 
-import { postLogin } from "@/network.mjs";
+// import { sendName } from "@/network.mjs";
 
 export default {
   data() {
     return {
       playerOneName: "",
-      // playerTwoName: "",
       newName: false,
       newPlayerOneName: false,
-      // newPlayerTwoName: false,
     };
   },
   methods: {
-    // setName(isPlayerOne) {
-    //     if (isPlayerOne) {
-    //         this.newPlayerOneName = true;
-    //         sessionStorage.setItem("player one", this.playerOneName);
-    //         console.log("session storage, player one: " + sessionStorage.getItem("player one"));
-    //     } else {
-    //         this.newPlayerTwoName = true;
-    //         sessionStorage.setItem("player two", this.playerTwoName);
-    //         console.log("session storage, player two: " + sessionStorage.getItem("player two"));
-    //     }
-    // }
-    login() {
-      console.log("calling post login. player one name " + this.playerOneName); 
-      postLogin(this.playerOneName);
+     setName() {
+      const loginUrl = URL + "/login"; 
+
+      fetch(loginUrl, {
+        method: "POST", 
+        mode: "cors",
+        headers: {
+          "Content-Type": "text/plain", 
+        },
+        body: this.playerOneName,
+      })
+      .then(response => response.text())
+      .then(data => {
+        console.log("response from server " + data);
+
+        if(data === "good name") {
+          router.push("/game"); 
+          console.log("good name"); 
+        } else {
+          console.log("bad name"); 
+        }
+      })
+      .catch(error => {
+        console.log("error when posting login error msg: " + error.message);
+      });
     }
   },
   mounted() {
@@ -110,13 +89,9 @@ export default {
     if (previousPlayerOneName !== null) {
       this.playerOneName = previousPlayerOneName;
     }
-    // if (previousPlayerTwoName !== null) {
-    //   this.playerTwoName = previousPlayerTwoName;
-    // }
   }, 
   unmounted() {
     sessionStorage.setItem(PLAYER_ONE_STORAGE_KEY, this.playerOneName);
-    // sessionStorage.setItem(PLAYER_TWO_STORAGE_KEY, this.playerTwoName);
   }
 }
 

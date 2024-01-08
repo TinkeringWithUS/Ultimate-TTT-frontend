@@ -4,9 +4,10 @@ import { PLAYER_ONE_STORAGE_KEY, PLAYER_TWO_STORAGE_KEY, NUM_TILES_PER_BOARD, IN
 import { reactive } from "vue";
 import { io } from "../node_modules/socket.io/client-dist/socket.io.js";
 
-// export const URL = "http://localhost:3000";
-// url for server backend 
-export const URL = "https://brick-amenable-cadet.glitch.me"; 
+export const URL = "http://localhost:3000";
+
+// production
+// export const URL = window.location.href; 
 
 export const state = reactive({
   isConnected: false,
@@ -46,7 +47,7 @@ export const socket = io(URL, socketOptions);
 // export const socket = io(window.location, socketOptions);
 
 export function connectSocket() {
-  socket.connect();
+  socket.connect(); 
   console.log("Calling connect Socket. connexion status: " + state.isConnected);
   return state.isConnected;
 }
